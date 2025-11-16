@@ -33,7 +33,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ secrets.DOCKER_USERNAME }}/homeinventory-server # 替换为你的 DockerHub 用户名和仓库名
+        images: ${{ secrets.DOCKER_USERNAME }}/homeinventory-server:latest # 替换为你的 DockerHub 用户名和仓库名
         tags: |
           type=ref,event=branch
           type=ref,event=tag
