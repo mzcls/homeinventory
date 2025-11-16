@@ -1,40 +1,39 @@
-# Project Prompt Summary
+# 项目提示词总结
 
-This document provides a summary of the prompts used to generate the Home Inventory system.
+本文档总结了用于生成家庭物品管理系统的提示词。
 
-## Initial Prompt
+## 初始提示词
 
-The initial prompt requested a complete, runnable project with a Flutter frontend, FastAPI backend, and MySQL database. The requirements were broken down into the following sections:
+初始提示词要求生成一个完整可运行的项目，包括 Flutter 前端、FastAPI 后端和 MySQL 数据库。要求分为以下几个部分：
 
-1.  **Overall Project Description:** An Android app for managing home inventory with multi-user and multi-warehouse support.
-2.  **Permission Model:** Defined the `User`, `Warehouse`, `UserWarehouse`, `Item`, and `ItemMedia` entities and their relationships.
-3.  **Database:** Requested a complete MySQL DDL script.
-4.  **Backend (FastAPI):** Specified the project structure and a list of required API endpoints for authentication, warehouse management, item management, and media uploads. Also specified a unified JSON response format.
-5.  **Frontend (Flutter):** Specified the project structure and a list of required pages and components. Also specified the use of `dio`, `provider`, and `image_picker`.
-6.  **Documentation:** Requested an architecture diagram, API documentation, database design documentation, and Flutter structure documentation.
+1.  **项目总体说明：** 一个用于管理家庭物品清单的安卓应用，支持多用户和多仓库。
+2.  **权限模型：** 定义了 `User`、`Warehouse`、`UserWarehouse`、`Item` 和 `ItemMedia` 实体及其关系。
+3.  **数据库：** 要求提供完整的 MySQL DDL 脚本。
+4.  **后端 (FastAPI)：** 指定了项目结构以及认证、仓库管理、物品管理和媒体上传所需的 API 端点列表。还指定了统一的 JSON 响应格式。
+5.  **前端 (Flutter)：** 指定了项目结构以及所需的页面和组件列表。还指定了使用 `dio`、`provider` 和 `image_picker`。
+6.  **文档：** 要求提供架构图、API 文档、数据库设计文档和 Flutter 结构文档。
 
-## Subsequent Prompts
+## 后续提示词
 
-The implementation was carried out in a step-by-step manner, following the `todos` list generated from the initial prompt. Each step was a self-contained prompt to generate a specific part of the application, such as:
+实现过程是按照初始提示词生成的 `todos` 列表逐步进行的。每个步骤都是一个独立的提示词，用于生成应用程序的特定部分，例如：
 
-*   "Generate MySQL DDL for user, warehouse, user_warehouse, item, and item_media tables."
-*   "Set up FastAPI backend project structure."
-*   "Implement database connection for FastAPI."
-*   "Define SQLAlchemy models and Pydantic schemas for FastAPI."
-*   "Implement authentication module (register, login with JWT, get user info) in FastAPI."
-*   "Implement warehouse module (create, list, invite) in FastAPI."
-*   "Implement item module (create, edit, delete, list, detail) in FastAPI."
-*   "Implement media upload module (local and OSS storage) in FastAPI."
-*   "Ensure unified response format for all FastAPI endpoints."
-*   "Set up Flutter frontend project structure."
-*   "Implement login/register pages in Flutter."
-*   "Implement warehouse list page in Flutter."
-*   "Implement item list page in Flutter."
-*   "Implement add/edit item page in Flutter."
-*   "Implement item detail page in Flutter."
-*   "Implement upload image/video component in Flutter."
-*   "Implement search/filter functionality in Flutter."
-*   "Generate architecture diagram."
-*   "Generate backend API documentation."
-*   "Generate database design documentation."
-*   "Generate Flutter frontend structure documentation."
+*   “为用户、仓库、用户-仓库、物品和物品媒体表生成 MySQL DDL。”
+*   “设置 FastAPI 后端项目结构。”
+*   “为 FastAPI 实现数据库连接。”
+*   “为 FastAPI 定义 SQLAlchemy 模型和 Pydantic 模式。”
+*   “在 FastAPI 中实现认证模块（注册、使用 JWT 登录、获取用户信息）。”
+*   “在 FastAPI 中实现仓库模块（创建、列表、邀请）。”
+*   “在 FastAPI 中实现物品模块（创建、编辑、删除、列表、详情）。”
+*   “在 FastAPI 中实现媒体上传模块（本地和 OSS 存储）。”
+*   “确保所有 FastAPI 端点采用统一的响应格式。”
+*   “设置 Flutter 前端项目结构。”
+*   “在 Flutter 中实现登录/注册页面。”
+*   “在 Flutter 中实现仓库列表页面。”
+*   “在 Flutter 中实现添加/编辑物品页面。”
+*   “在 Flutter 中实现物品详情页面。”
+*   “在 Flutter 中实现上传图片/视频组件。”
+*   “在 Flutter 中实现搜索/过滤功能。”
+*   “生成架构图。”
+*   “生成后端 API 文档。”
+*   “生成数据库设计文档。”
+*   “生成 Flutter 前端结构文档。”

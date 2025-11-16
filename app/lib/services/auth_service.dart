@@ -59,4 +59,16 @@ class AuthService {
       return e.response!;
     }
   }
+
+  Future<Response> changePassword(String token, String newPassword) async {
+    try {
+      return await _dio.put(
+        '${Config.apiBaseUrl}/auth/users/me/password',
+        data: {'new_password': newPassword},
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+    } on DioError catch (e) {
+      return e.response!;
+    }
+  }
 }

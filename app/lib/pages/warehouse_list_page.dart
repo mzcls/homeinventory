@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/warehouse_provider.dart';
+import '../models/warehouse.dart'; // Import Warehouse model
 import 'add_warehouse_page.dart';
 import 'main_scaffold_page.dart'; // Import the new main page
+import 'item_search_page.dart'; // Import ItemSearchPage
 
 class WarehouseListPage extends StatefulWidget {
   const WarehouseListPage({Key? key}) : super(key: key);
@@ -22,6 +24,46 @@ class _WarehouseListPageState extends State<WarehouseListPage> {
         .fetchWarehouses(authProvider.token!);
   }
 
+  Future<void> _confirmDeleteWarehouse(Warehouse warehouse) async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('确认删除'),
+          content: Text('您确定要删除位置 "${warehouse.name}" 吗？'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('取消'),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            TextButton(
+              child: const Text('删除', style: TextStyle(color: Colors.red)),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final warehouseProvider = Provider.of<WarehouseProvider>(context, listen: false);
+
+      if (authProvider.token != null) {
+        final result = await warehouseProvider.deleteWarehouse(
+          authProvider.token!,
+          warehouse.id,
+        );
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result['message'])),
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final warehouseProvider = Provider.of<WarehouseProvider>(context);
@@ -31,6 +73,14 @@ class _WarehouseListPageState extends State<WarehouseListPage> {
       appBar: AppBar(
         title: const Text('位置列表'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.search), // Search icon
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const ItemSearchPage()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
@@ -64,12 +114,14 @@ class _WarehouseListPageState extends State<WarehouseListPage> {
                     ),
                     trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
                     onTap: () {
+                      warehouseProvider.selectWarehouse(warehouse); // Set selected warehouse
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => MainScaffoldPage(warehouse: warehouse),
                         ),
                       );
                     },
+                    onLongPress: () => _confirmDeleteWarehouse(warehouse), // Long press for delete
                   ),
                 );
               },

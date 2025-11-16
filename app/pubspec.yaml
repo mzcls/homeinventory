@@ -16,6 +16,7 @@ dependencies:
   image_picker: ^1.0.0
   shared_preferences: ^2.0.15
   cached_network_image: ^3.3.0
+  flutter_image_compress: ^2.0.0 # Add this line
 
 dev_dependencies:
   flutter_test:

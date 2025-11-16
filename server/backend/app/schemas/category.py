@@ -18,8 +18,8 @@ class CategoryInDB(CategoryBase):
         from_attributes = True
 
 class CategoryResponse(CategoryBase):
-    category_id: int
-    warehouse_id: int
+    category_id: Optional[int] = None
+    warehouse_id: Optional[int] = None
 
     class Config:
         from_attributes = True

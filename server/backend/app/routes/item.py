@@ -86,6 +86,18 @@ async def get_deleted_items_in_warehouse(
     items = item_service.get_deleted_items_by_warehouse(db=db, warehouse_id=warehouse_id)
     return ResponseModel(data=items, message="Deleted items retrieved successfully")
 
+@router.get("/search", response_model=ResponseModel[List[ItemResponse]])
+async def search_items_globally(
+    query: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Searches for items across all warehouses accessible by the current user.
+    """
+    items = item_service.search_all_items(db, current_user.user_id, query)
+    return ResponseModel(data=items, message="Items found successfully")
+
 @router.get("/{item_id}", response_model=ResponseModel[ItemResponse])
 async def get_item_detail(
     item_id: int,

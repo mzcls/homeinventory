@@ -15,8 +15,10 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   void initState() {
     super.initState();
-    // Start the auto-login check as soon as this widget is initialized
-    Provider.of<AuthProvider>(context, listen: false).tryAutoLogin();
+    // Schedule the auto-login check to run after the first frame is rendered
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AuthProvider>(context, listen: false).tryAutoLogin();
+    });
   }
 
   @override

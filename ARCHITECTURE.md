@@ -1,12 +1,12 @@
-# Architecture Diagram
+# 架构图
 
-This diagram illustrates the high-level architecture of the Home Inventory system.
+此图展示了家庭物品管理系统的高层架构。
 
 ```
 +-----------------+      +-----------------+      +-----------------+
 |                 |      |                 |      |                 |
-|  Flutter App    |----->|   FastAPI Backend |----->|   MySQL DB      |
-| (Android)       |      |   (REST API)    |      |                 |
+|  Flutter 应用   |----->|   FastAPI 后端  |----->|   MySQL 数据库  |
+| (安卓)          |      |   (REST API)    |      |                 |
 |                 |      |                 |      |                 |
 +-----------------+      +-----------------+      +-----------------+
       |                            |                      ^
@@ -14,22 +14,22 @@ This diagram illustrates the high-level architecture of the Home Inventory syste
       |                            v                      |
       |                      +-----------------+          |
       |                      |                 |          |
-      +--------------------->|  Object Storage |<---------+
-                           | (S3/Aliyun OSS) |
-                           | (Optional)      |
+      +--------------------->|  对象存储       |<---------+
+                           | (S3/阿里云 OSS) |
+                           | (可选)          |
                            +-----------------+
 ```
 
-## Components
+## 组件
 
-*   **Flutter App (Android):** The user-facing mobile application for managing inventory. It communicates with the backend via REST API calls.
-*   **FastAPI Backend:** The server-side application that provides the REST API. It handles business logic, authentication, and database interactions.
-*   **MySQL Database:** The primary data store for users, warehouses, items, and their relationships.
-*   **Object Storage (Optional):** An optional component for storing media files (images/videos). This can be a cloud service like AWS S3 or Aliyun OSS, or local file storage.
+*   **Flutter 应用 (安卓):** 面向用户的移动应用程序，用于管理物品清单。它通过 REST API 调用与后端通信。
+*   **FastAPI 后端:** 服务器端应用程序，提供 REST API。它处理业务逻辑、身份验证和数据库交互。
+*   **MySQL 数据库:** 用户、仓库、物品及其关系的主要数据存储。
+*   **对象存储 (可选):** 用于存储媒体文件（图片/视频）的可选组件。这可以是 AWS S3 或阿里云 OSS 等云服务，也可以是本地文件存储。
 
-## Data Flow
+## 数据流
 
-1.  The Flutter app sends HTTP requests to the FastAPI backend.
-2.  The FastAPI backend processes the requests, performs business logic, and interacts with the MySQL database.
-3.  For media uploads, the backend can store files in either the local filesystem or an object storage service.
-4.  The backend returns JSON responses to the Flutter app.
+1.  Flutter 应用向 FastAPI 后端发送 HTTP 请求。
+2.  FastAPI 后端处理请求，执行业务逻辑，并与 MySQL 数据库交互。
+3.  对于媒体上传，后端可以将文件存储在本地文件系统或对象存储服务中。
+4.  后端将 JSON 响应返回给 Flutter 应用。

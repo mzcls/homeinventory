@@ -66,7 +66,7 @@ def get_user_warehouses_route(
 @router.post("/{warehouse_id}/invite", response_model=ResponseModel[UserWarehouseResponse]) # Use ResponseModel
 def invite_user_to_warehouse_route(
     warehouse_id: int,
-    invited_user_email: str,
+    invited_username: str, # Changed from invited_user_email
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -79,7 +79,7 @@ def invite_user_to_warehouse_route(
         )
 
     invited_user_warehouse = warehouse_service.invite_user_to_warehouse(
-        db, warehouse_id, invited_user_email, current_user.user_id
+        db, warehouse_id, invited_username, current_user.user_id # Changed invited_user_email to invited_username
     )
     if invited_user_warehouse is None:
         raise HTTPException(
@@ -87,3 +87,29 @@ def invite_user_to_warehouse_route(
             detail="User not found, or already a member, or inviter is not owner."
         )
     return ResponseModel(data=invited_user_warehouse, message="User invited to warehouse successfully")
+
+@router.delete("/{warehouse_id}", response_model=ResponseModel)
+def delete_warehouse_route(
+    warehouse_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    db_warehouse = warehouse_service.get_warehouse(db, warehouse_id)
+    if not db_warehouse:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Warehouse not found")
+
+    # Only the owner of the warehouse can delete it
+    user_role = warehouse_service.get_user_warehouse_role(db, current_user.user_id, warehouse_id)
+    if user_role != UserRole.owner:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only warehouse owners can delete a warehouse."
+        )
+
+    result = warehouse_service.delete_warehouse(db, warehouse_id)
+    if not result["success"]:
+        if "items" in result["message"] or "categories" in result["message"] or "assignments" in result["message"]:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=result["message"])
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=result["message"])
+    return ResponseModel(message=result["message"])

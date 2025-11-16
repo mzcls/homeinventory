@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
+from pydantic import BaseModel # Import BaseModel
 
 from ..database import get_db
 from ..schemas.user import UserCreate, UserResponse
@@ -41,6 +42,9 @@ async def get_current_admin_user(current_user: User = Depends(get_current_user))
         )
     return current_user
 
+class PasswordUpdate(BaseModel): # New Pydantic model for password update
+    new_password: str
+
 @router.post("/register", response_model=ResponseModel[UserResponse])
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     # Email is now optional, so no need to check if it's already registered
@@ -71,3 +75,14 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
 @router.get("/users/me", response_model=ResponseModel[UserResponse]) # Use ResponseModel
 async def read_users_me(current_user: User = Depends(get_current_user)):
     return ResponseModel(data=current_user, message="User information retrieved successfully") # Wrap response
+
+@router.put("/users/me/password", response_model=ResponseModel)
+async def update_password(
+    password_update: PasswordUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    updated_user = user_service.update_user_password(db, current_user.user_id, password_update.new_password)
+    if not updated_user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return ResponseModel(message="Password updated successfully")

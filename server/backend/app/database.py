@@ -7,7 +7,7 @@ import os
 load_dotenv()
 
 # Database credentials from environment variables
-DATABASE_URL = os.getenv("DATABASE_URL", "mysql+mysqlconnector://user:password@localhost/homeinventory")
+DATABASE_URL = os.getenv("DATABASE_URL", "mysql+mysqlconnector://app:yy1234yy@10.0.1.2/homeinventory")
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

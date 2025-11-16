@@ -11,7 +11,7 @@ from ..services import warehouse as warehouse_service
 from ..routes.auth import get_current_user
 from ..models.user import User
 from ..models.item_media import FileType
-from ..utils.media import save_upload_file, delete_upload_file
+# Removed: from ..utils.media import save_upload_file, delete_upload_file # These are now handled by media_service
 
 router = APIRouter()
 
@@ -43,13 +43,16 @@ async def upload_item_media(
     else:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported file type")
 
-    # The save function now returns a dictionary of URLs
-    urls = await save_upload_file(file, file_type)
+    # Read file content
+    file_content = await file.read()
+
+    # Save the file using the service function
+    file_url, thumbnail_url = media_service.save_upload_file(file_content, file.filename, content_type)
 
     media_create = {
         "item_id": item_id,
-        "file_url": urls["full_url"],
-        "thumbnail_url": urls["thumb_url"],
+        "file_url": file_url,
+        "thumbnail_url": thumbnail_url,
         "file_type": file_type
     }
     created_media = media_service.create_item_media(db, media_create)
@@ -73,8 +76,8 @@ async def delete_media(
             detail="You do not have access to this item's warehouse."
         )
 
-    # Delete the file and the database record
-    deleted = media_service.delete_media_by_id(db, media_id, delete_upload_file)
+    # Delete the file and the database record using the service function
+    deleted = media_service.delete_media_by_id(db, media_id) # No delete_file_callback needed
     if not deleted:
         # This case should ideally not be hit if the initial check passes
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Media not found during deletion")

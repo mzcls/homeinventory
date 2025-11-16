@@ -75,7 +75,10 @@ async def delete_category_route(
             detail="Only owners can delete categories from this warehouse."
         )
 
-    deleted = category_service.delete_category(db, category_id)
-    if not deleted:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found for deletion")
-    return ResponseModel(message="Category deleted successfully")
+    result = category_service.delete_category(db, category_id)
+    if not result["success"]:
+        if result["message"] == "Category is in use by items and cannot be deleted":
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=result["message"])
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=result["message"])
+    return ResponseModel(message=result["message"])

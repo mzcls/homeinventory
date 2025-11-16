@@ -27,6 +27,18 @@ class ItemService {
     }
   }
 
+  Future<Response> searchAllItems(String token, String query) async {
+    try {
+      return await _dio.get(
+        '${Config.apiBaseUrl}/items/search',
+        queryParameters: {'query': query},
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+    } on DioError catch (e) {
+      return e.response!;
+    }
+  }
+
   Future<Response> createItem(String token, String name, int? categoryId, String? location, int quantity, int warehouseId) async {
     try {
       return await _dio.post(

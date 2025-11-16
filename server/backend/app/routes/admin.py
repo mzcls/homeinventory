@@ -74,3 +74,14 @@ async def remove_warehouse_assignment_route(
     if not success:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assignment not found")
     return ResponseModel(message="User removed from warehouse successfully")
+
+@router.put("/users/{user_id}/reset-password", response_model=ResponseModel)
+async def reset_user_password_route(
+    user_id: int,
+    current_admin_user: User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db)
+):
+    updated_user = user_service.reset_user_password(db, user_id, "123456")
+    if not updated_user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return ResponseModel(message="User password reset to '123456' successfully")

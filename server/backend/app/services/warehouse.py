@@ -4,6 +4,8 @@ from typing import List, Optional
 from ..models.warehouse import Warehouse
 from ..models.user_warehouse import UserWarehouse, UserRole
 from ..models.user import User
+from ..models.item import Item # Import Item model
+from ..models.category import Category # Import Category model
 from ..schemas.warehouse import WarehouseCreate
 
 def create_warehouse(db: Session, warehouse: WarehouseCreate, user_id: int):
@@ -50,6 +52,30 @@ def get_user_warehouses_with_roles(db: Session, user_id: int) -> List[tuple[Ware
 def get_warehouse(db: Session, warehouse_id: int):
     return db.query(Warehouse).filter(Warehouse.warehouse_id == warehouse_id).first()
 
+def delete_warehouse(db: Session, warehouse_id: int) -> dict:
+    db_warehouse = db.query(Warehouse).filter(Warehouse.warehouse_id == warehouse_id).first()
+    if not db_warehouse:
+        return {"success": False, "message": "Warehouse not found"}
+
+    # Check for associated items
+    associated_items_count = db.query(Item).filter(Item.warehouse_id == warehouse_id).count()
+    if associated_items_count > 0:
+        return {"success": False, "message": "Warehouse contains items and cannot be deleted"}
+
+    # Check for associated categories
+    associated_categories_count = db.query(Category).filter(Category.warehouse_id == warehouse_id).count()
+    if associated_categories_count > 0:
+        return {"success": False, "message": "Warehouse contains categories and cannot be deleted"}
+
+    # Check for associated user-warehouse mappings
+    associated_user_warehouses_count = db.query(UserWarehouse).filter(UserWarehouse.warehouse_id == warehouse_id).count()
+    if associated_user_warehouses_count > 0:
+        return {"success": False, "message": "Warehouse has user assignments and cannot be deleted"}
+
+    db.delete(db_warehouse)
+    db.commit()
+    return {"success": True, "message": "Warehouse deleted successfully"}
+
 def get_user_warehouse_role(db: Session, user_id: int, warehouse_id: int) -> Optional[UserRole]:
     user_warehouse = (
         db.query(UserWarehouse)
@@ -93,14 +119,14 @@ def remove_user_from_warehouse(db: Session, user_id: int, warehouse_id: int):
         return True
     return False
 
-def invite_user_to_warehouse(db: Session, warehouse_id: int, invited_user_email: str, inviter_user_id: int):
+def invite_user_to_warehouse(db: Session, warehouse_id: int, invited_username: str, inviter_user_id: int):
     # Check if inviter is owner of the warehouse
     inviter_role = get_user_warehouse_role(db, inviter_user_id, warehouse_id)
     if inviter_role != UserRole.owner:
         return None # Or raise an exception for insufficient permissions
 
-    # Find the user to be invited
-    invited_user = db.query(User).filter(User.email == invited_user_email).first()
+    # Find the user to be invited by username
+    invited_user = db.query(User).filter(User.username == invited_username).first()
     if not invited_user:
         return None # User not found
 

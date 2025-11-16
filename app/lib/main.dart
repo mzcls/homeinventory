@@ -6,6 +6,7 @@ import 'providers/item_provider.dart';
 import 'providers/media_provider.dart';
 import 'providers/category_provider.dart'; // Import CategoryProvider
 import 'providers/admin_provider.dart'; // Import AdminProvider
+import 'providers/item_search_provider.dart'; // Import ItemSearchProvider
 import 'widgets/auth_wrapper.dart'; // Import the new wrapper
 
 void main() {
@@ -18,6 +19,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => MediaProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()), // Add CategoryProvider
         ChangeNotifierProvider(create: (_) => AdminProvider()), // Add AdminProvider
+        ChangeNotifierProvider(create: (_) => ItemSearchProvider()), // Add ItemSearchProvider
       ],
       child: const MyApp(),
     ),
@@ -30,7 +32,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '家庭物品管理系统',
+      title: '家庭物品',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,

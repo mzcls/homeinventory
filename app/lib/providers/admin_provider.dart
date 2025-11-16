@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart'; // Import DioError for error handling
 import '../models/user.dart';
 import '../models/warehouse.dart';
 import '../services/admin_service.dart';
@@ -13,11 +14,13 @@ class AdminProvider with ChangeNotifier {
 
   Future<void> fetchAllUsers(String token) async {
     _allUsers = await _adminService.getAllUsers(token);
+    debugPrint('AdminProvider: Fetched ${_allUsers.length} users.');
     notifyListeners();
   }
 
   Future<void> fetchAllWarehouses(String token) async {
     _allWarehouses = await _adminService.getAllWarehouses(token);
+    debugPrint('AdminProvider: Fetched ${_allWarehouses.length} warehouses.');
     notifyListeners();
   }
 
@@ -39,5 +42,11 @@ class AdminProvider with ChangeNotifier {
       await fetchAllWarehouses(token); // Refresh warehouses if their user assignments are part of their data
     }
     return success;
+  }
+
+  Future<Map<String, dynamic>> resetUserPassword(String token, int userId) async {
+    // AdminService.resetUserPassword already returns a structured map with 'success' and 'message'
+    // and handles DioError internally.
+    return await _adminService.resetUserPassword(token, userId);
   }
 }

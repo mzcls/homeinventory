@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart'; // Import DioError for error handling
 import '../models/category.dart';
 import '../services/category_service.dart';
 
@@ -25,6 +26,7 @@ class CategoryProvider with ChangeNotifier {
       }
     } catch (e) {
       // Handle error
+      debugPrint('Error fetching categories: $e');
     }
   }
 
@@ -37,20 +39,30 @@ class CategoryProvider with ChangeNotifier {
       }
       return false;
     } catch (e) {
+      debugPrint('Error creating category: $e');
       return false;
     }
   }
 
-  Future<bool> deleteCategory(String token, int categoryId, int warehouseId) async {
+  Future<Map<String, dynamic>> deleteCategory(String token, int categoryId, int warehouseId) async {
     try {
       final response = await _categoryService.deleteCategory(token, categoryId);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && response.data['status'] == 'success') {
         await fetchCategories(token, warehouseId); // Refresh list
-        return true;
+        return {'success': true, 'message': response.data['message'] ?? '分类删除成功'};
       }
-      return false;
+      return {'success': false, 'message': response.data['message'] ?? '分类删除失败'};
+    } on DioError catch (e) {
+      debugPrint('DioError deleting category: ${e.response?.statusCode} - ${e.response?.data}');
+      if (e.response?.statusCode == 409) {
+        return {'success': false, 'message': e.response?.data['detail'] ?? '分类正在被物品使用，无法删除'};
+      } else if (e.response?.data != null && e.response?.data['detail'] != null) {
+        return {'success': false, 'message': e.response?.data['detail']};
+      }
+      return {'success': false, 'message': '网络错误或服务器无响应'};
     } catch (e) {
-      return false;
+      debugPrint('Unknown error deleting category: $e');
+      return {'success': false, 'message': '发生未知错误'};
     }
   }
 }

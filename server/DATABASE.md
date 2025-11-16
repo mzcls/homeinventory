@@ -1,79 +1,94 @@
-# Database Design Documentation
+# 数据库设计文档
 
-This document outlines the schema for the MySQL database used in the Home Inventory system.
+本文档概述了家庭物品管理系统使用的 MySQL 数据库的模式。
 
-## Tables
+## 表
 
-### 1. `user`
+### 1. `user` (用户表)
 
-Stores user account information.
+存储用户账户信息。
 
-| Column          | Type           | Constraints      | Description                               |
-|-----------------|----------------|------------------|-------------------------------------------|
-| `user_id`       | INT            | AUTO_INCREMENT, PK | Unique identifier for the user.           |
-| `username`      | VARCHAR(255)   | NOT NULL, UNIQUE | User's chosen username.                   |
-| `email`         | VARCHAR(255)   | NOT NULL, UNIQUE | User's email address.                     |
-| `password_hash` | VARCHAR(255)   | NOT NULL         | Hashed password for the user.             |
-| `created_at`    | TIMESTAMP      | DEFAULT NOW()    | Timestamp of when the user was created.   |
-| `updated_at`    | TIMESTAMP      | DEFAULT NOW()    | Timestamp of the last update to the user. |
+| 列名            | 类型           | 约束条件           | 描述                                     |
+|---------------|----------------|--------------------|------------------------------------------|
+| `user_id`     | INT            | AUTO_INCREMENT, PK | 用户的唯一标识符。                       |
+| `username`    | VARCHAR(50)    | NOT NULL, UNIQUE   | 用户选择的用户名。                       |
+| `email`       | VARCHAR(100)   | UNIQUE             | 用户的电子邮件地址 (可选)。              |
+| `password_hash` | VARCHAR(255)   | NOT NULL           | 用户的哈希密码。                         |
+| `is_admin`    | BOOLEAN        | DEFAULT FALSE      | 是否为管理员用户。                       |
+| `created_at`  | TIMESTAMP      | DEFAULT CURRENT_TIMESTAMP | 用户创建时间。                           |
+| `updated_at`  | TIMESTAMP      | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | 用户信息最后更新时间。                   |
 
-### 2. `warehouse`
+### 2. `warehouse` (仓库表)
 
-Stores information about each warehouse.
+存储每个仓库的信息。
 
-| Column               | Type         | Constraints      | Description                                  |
-|----------------------|--------------|------------------|----------------------------------------------|
-| `warehouse_id`       | INT          | AUTO_INCREMENT, PK | Unique identifier for the warehouse.         |
-| `name`               | VARCHAR(255) | NOT NULL         | Name of the warehouse.                       |
-| `description`        | TEXT         | NULL             | Optional description of the warehouse.       |
-| `created_by_user_id` | INT          | NOT NULL, FK     | The `user_id` of the user who created it.    |
-| `created_at`         | TIMESTAMP    | DEFAULT NOW()    | Timestamp of when the warehouse was created. |
-| `updated_at`         | TIMESTAMP    | DEFAULT NOW()    | Timestamp of the last update.                |
+| 列名                | 类型           | 约束条件           | 描述                                     |
+|-------------------|----------------|--------------------|------------------------------------------|
+| `warehouse_id`    | INT            | AUTO_INCREMENT, PK | 仓库的唯一标识符。                       |
+| `name`            | VARCHAR(100)   | NOT NULL           | 仓库名称。                               |
+| `description`     | TEXT           | NULL               | 仓库的描述 (可选)。                      |
+| `created_by_user_id` | INT            | NOT NULL, FK       | 创建该仓库的用户 ID。                    |
+| `created_at`      | TIMESTAMP      | DEFAULT CURRENT_TIMESTAMP | 仓库创建时间。                           |
+| `updated_at`      | TIMESTAMP      | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | 仓库信息最后更新时间。                   |
 
-### 3. `user_warehouse`
+### 3. `user_warehouse` (用户-仓库映射表)
 
-A mapping table that links users to warehouses, defining their roles.
+链接用户与仓库，并定义其角色。
 
-| Column         | Type                  | Constraints      | Description                                      |
-|----------------|-----------------------|------------------|--------------------------------------------------|
-| `id`           | INT                   | AUTO_INCREMENT, PK | Unique identifier for the mapping.               |
-| `user_id`      | INT                   | NOT NULL, FK     | The `user_id` of the user.                       |
-| `warehouse_id` | INT                   | NOT NULL, FK     | The `warehouse_id` of the warehouse.             |
-| `role`         | ENUM('owner', 'member') | NOT NULL         | The user's role in the warehouse.                |
-| `created_at`   | TIMESTAMP             | DEFAULT NOW()    | Timestamp of when the mapping was created.       |
-| `updated_at`   | TIMESTAMP             | DEFAULT NOW()    | Timestamp of the last update.                    |
+| 列名            | 类型                  | 约束条件           | 描述                                     |
+|---------------|-----------------------|--------------------|------------------------------------------|
+| `id`          | INT                   | AUTO_INCREMENT, PK | 映射记录的唯一标识符。                   |
+| `user_id`     | INT                   | NOT NULL, FK       | 用户的 ID。                              |
+| `warehouse_id` | INT                   | NOT NULL, FK       | 仓库的 ID。                              |
+| `role`        | ENUM('owner', 'member') | NOT NULL           | 用户在仓库中的角色。                     |
+| `created_at`  | TIMESTAMP             | DEFAULT CURRENT_TIMESTAMP | 映射创建时间。                           |
+| `updated_at`  | TIMESTAMP             | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | 映射信息最后更新时间。                   |
 
-### 4. `item`
+### 4. `category` (分类表)
 
-Stores information about each inventory item.
+存储物品分类信息。
 
-| Column         | Type         | Constraints      | Description                                  |
-|----------------|--------------|------------------|----------------------------------------------|
-| `item_id`      | INT          | AUTO_INCREMENT, PK | Unique identifier for the item.              |
-| `name`         | VARCHAR(255) | NOT NULL         | Name of the item.                            |
-| `category`     | VARCHAR(255) | NULL             | Category of the item.                        |
-| `location`     | VARCHAR(255) | NULL             | Location of the item within the warehouse.   |
-| `quantity`     | INT          | NOT NULL, DEFAULT 1 | Quantity of the item.                        |
-| `warehouse_id` | INT          | NOT NULL, FK     | The `warehouse_id` where the item is located. |
-| `created_at`   | TIMESTAMP    | DEFAULT NOW()    | Timestamp of when the item was created.      |
-| `updated_at`   | TIMESTAMP    | DEFAULT NOW()    | Timestamp of the last update.                |
+| 列名            | 类型           | 约束条件           | 描述                                     |
+|---------------|----------------|--------------------|------------------------------------------|
+| `category_id` | INT            | AUTO_INCREMENT, PK | 分类的唯一标识符。                       |
+| `name`        | VARCHAR(100)   | NOT NULL           | 分类名称。                               |
+| `warehouse_id` | INT            | NOT NULL, FK       | 所属仓库的 ID。                          |
+| `created_at`  | TIMESTAMP      | DEFAULT CURRENT_TIMESTAMP | 分类创建时间。                           |
+| `updated_at`  | TIMESTAMP      | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | 分类信息最后更新时间。                   |
 
-### 5. `item_media`
+### 5. `item` (物品表)
 
-Stores references to media files (images/videos) associated with items.
+存储每个物品的信息。
 
-| Column      | Type                   | Constraints      | Description                                  |
-|-------------|------------------------|------------------|----------------------------------------------|
-| `id`        | INT                    | AUTO_INCREMENT, PK | Unique identifier for the media record.      |
-| `item_id`   | INT                    | NOT NULL, FK     | The `item_id` this media is associated with. |
-| `file_url`  | VARCHAR(2048)          | NOT NULL         | URL to the media file.                       |
-| `file_type` | ENUM('image', 'video') | NOT NULL         | The type of the media file.                  |
-| `created_at`| TIMESTAMP              | DEFAULT NOW()    | Timestamp of when the media was created.     |
-| `updated_at`| TIMESTAMP              | DEFAULT NOW()    | Timestamp of the last update.                |
+| 列名            | 类型           | 约束条件           | 描述                                     |
+|---------------|----------------|--------------------|------------------------------------------|
+| `item_id`     | INT            | AUTO_INCREMENT, PK | 物品的唯一标识符。                       |
+| `name`        | VARCHAR(255)   | NOT NULL           | 物品名称。                               |
+| `category_id` | INT            | NOT NULL, FK       | 物品所属分类的 ID。                      |
+| `location`    | VARCHAR(255)   | NULL               | 物品在仓库中的具体位置。                 |
+| `quantity`    | INT            | NOT NULL, DEFAULT 1 | 物品数量。                               |
+| `warehouse_id` | INT            | NOT NULL, FK       | 物品所属仓库的 ID。                      |
+| `deleted_at`  | TIMESTAMP      | NULL               | 物品软删除时间戳。                       |
+| `created_at`  | TIMESTAMP      | DEFAULT CURRENT_TIMESTAMP | 物品创建时间。                           |
+| `updated_at`  | TIMESTAMP      | DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | 物品信息最后更新时间。                   |
 
-## Relationships
+### 6. `item_media` (物品文件表)
 
-*   A `User` can create many `Warehouse`s.
-*   A `User` can be a member of many `Warehouse`s, and a `Warehouse` can have many `User`s (many-to-many via `user_warehouse`).
-*   A `Warehouse` can contain many `Item`s.
-*   An `Item` can have many `ItemMedia` files.
+存储与物品关联的媒体文件（图片/视频）的引用。
+
+| 列名            | 类型                   | 约束条件           | 描述                                     |
+|---------------|------------------------|--------------------|------------------------------------------|
+| `id`          | INT                    | AUTO_INCREMENT, PK | 媒体记录的唯一标识符。                   |
+| `item_id`     | INT                    | NOT NULL, FK       | 媒体文件关联的物品 ID。                  |
+| `file_url`    | VARCHAR(255)           | NOT NULL           | 媒体文件的 URL。                         |
+| `file_type`   | ENUM('image', 'video') | NOT NULL           | 媒体文件的类型。                         |
+| `created_at`  | TIMESTAMP              | DEFAULT CURRENT_TIMESTAMP | 媒体文件创建时间。                       |
+
+## 关系
+
+*   一个 `User` 可以创建多个 `Warehouse`。
+*   一个 `User` 可以是多个 `Warehouse` 的成员，一个 `Warehouse` 可以有多个 `User`（通过 `user_warehouse` 表实现多对多关系）。
+*   一个 `Warehouse` 可以包含多个 `Item`。
+*   一个 `Item` 可以有多个 `ItemMedia` 文件。
+*   一个 `Warehouse` 可以有多个 `Category`。
+*   一个 `Category` 可以包含多个 `Item`。

@@ -8,6 +8,7 @@ import '../providers/media_provider.dart';
 import '../widgets/image_upload.dart';
 import 'edit_item_page.dart';
 import '../config.dart';
+import '../models/item_media.dart'; // Import ItemMedia
 
 class ItemDetailPage extends StatefulWidget {
   final int itemId;
@@ -20,6 +21,8 @@ class ItemDetailPage extends StatefulWidget {
 }
 
 class _ItemDetailPageState extends State<ItemDetailPage> {
+  int _mediaPageIndex = 0; // Track current media page index
+
   @override
   void initState() {
     super.initState();
@@ -42,7 +45,8 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
     });
   }
 
-  void _showFullImage(BuildContext context, String imageUrl) {
+  void _showFullMediaViewer(BuildContext context, List<ItemMedia> mediaList, int initialIndex) {
+    PageController pageController = PageController(initialPage: initialIndex);
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -50,21 +54,63 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
       barrierColor: Colors.black54,
       transitionDuration: const Duration(milliseconds: 200),
       pageBuilder: (BuildContext buildContext, Animation<double> animation, Animation<double> secondaryAnimation) {
-        return GestureDetector(
-          onTap: () => Navigator.of(context).pop(), // Click again to dismiss
-          child: Center(
-            child: InteractiveViewer(
-              panEnabled: true,
-              minScale: 0.8,
-              maxScale: 4,
-              child: CachedNetworkImage(
-                imageUrl: imageUrl,
-                fit: BoxFit.contain,
-                placeholder: (context, url) => const CircularProgressIndicator(),
-                errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.white),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return GestureDetector(
+              onTap: () => Navigator.of(context).pop(), // Click again to dismiss
+              child: Stack(
+                children: [
+                  PageView.builder(
+                    controller: pageController,
+                    itemCount: mediaList.length,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _mediaPageIndex = index;
+                      });
+                    },
+                    itemBuilder: (context, index) {
+                      final media = mediaList[index];
+                      final correctedFullUrl = media.fileUrl.replaceAll('/uploads//uploads/', '/uploads/');
+                      final fullUrl = '${Config.apiBaseUrl}$correctedFullUrl';
+
+                      return Center(
+                        child: media.fileType == 'image'
+                            ? InteractiveViewer(
+                                panEnabled: true,
+                                minScale: 0.8,
+                                maxScale: 4,
+                                child: CachedNetworkImage(
+                                  imageUrl: fullUrl,
+                                  fit: BoxFit.contain,
+                                  placeholder: (context, url) => const CircularProgressIndicator(),
+                                  errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.white),
+                                ),
+                              )
+                            : Container(
+                                color: Colors.black,
+                                child: const Icon(
+                                  Icons.videocam,
+                                  color: Colors.white,
+                                  size: 80,
+                                ),
+                              ),
+                      );
+                    },
+                  ),
+                  Positioned(
+                    bottom: 20,
+                    left: 0,
+                    right: 0,
+                    child: Text(
+                      '${_mediaPageIndex + 1} / ${mediaList.length}',
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -224,15 +270,13 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                               final media = item.media[index];
                               final correctedThumbUrl = (media.thumbnailUrl ?? media.fileUrl).replaceAll('/uploads//uploads/', '/uploads/');
                               final thumbUrl = '${Config.apiBaseUrl}$correctedThumbUrl';
-                              final correctedFullUrl = media.fileUrl.replaceAll('/uploads//uploads/', '/uploads/');
-                              final fullUrl = '${Config.apiBaseUrl}$correctedFullUrl';
+                              // final correctedFullUrl = media.fileUrl.replaceAll('/uploads//uploads/', '/uploads/');
+                              // final fullUrl = '${Config.apiBaseUrl}$correctedFullUrl';
 
                               return GridTile(
                                 child: InkWell(
                                   onTap: () {
-                                    if (media.fileType == 'image') {
-                                      _showFullImage(context, fullUrl);
-                                    }
+                                    _showFullMediaViewer(context, item.media, index); // Pass all media and initial index
                                   },
                                   onLongPress: widget.includeDeleted ? null : () { // Disable long press for deleted items
                                     showDialog(

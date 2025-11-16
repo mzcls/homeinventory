@@ -89,6 +89,7 @@ class _AddItemPageState extends State<AddItemPage> {
                   });
                 },
                 onSaved: (value) => _selectedCategoryId = value,
+                validator: (value) => value == null ? '请选择分类' : null, // Category is now mandatory
               ),
               const SizedBox(height: 16), // Add spacing
               TextFormField(
@@ -101,6 +102,7 @@ class _AddItemPageState extends State<AddItemPage> {
                   filled: true,
                   fillColor: Colors.grey[200],
                 ),
+                validator: (value) => value!.isEmpty ? '请输入位置' : null, // Location is now mandatory
                 onSaved: (value) => _location = value,
               ),
               const SizedBox(height: 16), // Add spacing

@@ -26,11 +26,16 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
   }
 
   Future<void> _fetchAdminData() async {
+    debugPrint('AdminPanelPage: _fetchAdminData called.');
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final adminProvider = Provider.of<AdminProvider>(context, listen: false);
     if (authProvider.token != null) {
+      debugPrint('AdminPanelPage: Token is not null, fetching users and warehouses.');
       await adminProvider.fetchAllUsers(authProvider.token!);
       await adminProvider.fetchAllWarehouses(authProvider.token!);
+      debugPrint('AdminPanelPage: Finished fetching users and warehouses.');
+    } else {
+      debugPrint('AdminPanelPage: Token is null, cannot fetch admin data.');
     }
   }
 
@@ -78,6 +83,46 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
       );
       if (success) {
         _fetchAdminData(); // Refresh data
+      }
+    }
+  }
+
+  Future<void> _confirmResetPassword(User user) async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('确认重置密码'),
+          content: Text('您确定要重置用户 "${user.username}" 的密码吗？重置后密码将变为 "123456"。'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('取消'),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            TextButton(
+              child: const Text('重置', style: TextStyle(color: Colors.red)),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final adminProvider = Provider.of<AdminProvider>(context, listen: false);
+
+      if (authProvider.token != null) {
+        final result = await adminProvider.resetUserPassword(
+          authProvider.token!,
+          user.userId,
+        );
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result['message'])),
+          );
+        }
       }
     }
   }
@@ -193,7 +238,17 @@ class _AdminPanelPageState extends State<AdminPanelPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('用户: ${user.username} ${user.isAdmin ? '(管理员)' : ''}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('用户: ${user.username} ${user.isAdmin ? '(管理员)' : ''}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  IconButton(
+                                    icon: const Icon(Icons.vpn_key, color: Colors.blue),
+                                    onPressed: () => _confirmResetPassword(user),
+                                    tooltip: '重置密码',
+                                  ),
+                                ],
+                              ),
                               const SizedBox(height: 5),
                               FutureBuilder<List<Warehouse>>(
                                 future: Provider.of<WarehouseProvider>(context, listen: false).fetchUserWarehouses(

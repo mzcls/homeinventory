@@ -77,4 +77,23 @@ class AdminService {
       return false;
     }
   }
+
+  Future<Map<String, dynamic>> resetUserPassword(String token, int userId) async {
+    try {
+      final response = await _dio.put(
+        '${Config.apiBaseUrl}/admin/users/$userId/reset-password',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+      if (response.statusCode == 200 && response.data['status'] == 'success') {
+        return {'success': true, 'message': response.data['message'] ?? '密码重置成功'};
+      }
+      return {'success': false, 'message': response.data['message'] ?? '密码重置失败'};
+    } on DioError catch (e) {
+      print('Error resetting user password: ${e.response?.data ?? e.message}');
+      if (e.response?.data != null && e.response?.data['detail'] != null) {
+        return {'success': false, 'message': e.response?.data['detail']};
+      }
+      return {'success': false, 'message': '网络错误或服务器无响应'};
+    }
+  }
 }

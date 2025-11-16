@@ -29,5 +29,21 @@ def create_user(db: Session, user: UserCreate):
     db.refresh(db_user)
     return db_user
 
+def update_user_password(db: Session, user_id: int, new_password: str):
+    db_user = get_user_by_id(db, user_id)
+    if db_user:
+        db_user.password_hash = get_password_hash(new_password)
+        db.commit()
+        db.refresh(db_user)
+    return db_user
+
+def reset_user_password(db: Session, user_id: int, default_password: str):
+    db_user = get_user_by_id(db, user_id)
+    if db_user:
+        db_user.password_hash = get_password_hash(default_password)
+        db.commit()
+        db.refresh(db_user)
+    return db_user
+
 def get_all_users(db: Session) -> List[User]:
     return db.query(User).all()
