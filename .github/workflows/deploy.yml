@@ -43,8 +43,8 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
-        context: ./homeinventory/server/backend # Dockerfile 所在的目录
-        file: ./homeinventory/server/backend/Dockerfile # Dockerfile 的路径
+        context: ./server/backend # Dockerfile 所在的目录
+        file: ./server/backend/Dockerfile # Dockerfile 的路径
         push: ${{ github.event_name != 'pull_request' }} # PR 时不推送
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
