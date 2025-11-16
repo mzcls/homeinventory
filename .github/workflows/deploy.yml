@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 # 触发条件：当推送到 main 分支或创建标签时触发
 on:
   push:
-    branches: [ latest ]
+    branches: [ main ]
     tags: [ 'v*' ]
   # 也可以添加 pull_request 触发，用于测试 PR 是否能成功构建
   pull_request:
@@ -46,5 +46,5 @@ jobs:
         context: ./server/backend # Dockerfile 所在的目录
         file: ./server/backend/Dockerfile # Dockerfile 的路径
         push: ${{ github.event_name != 'pull_request' }} # PR 时不推送
-        tags: ${{ steps.meta.outputs.tags }}
+        tags: latest
         labels: ${{ steps.meta.outputs.labels }}
