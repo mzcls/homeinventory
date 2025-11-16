@@ -1,0 +1,1 @@
+flutter.bat build apk --target-platform android-arm64

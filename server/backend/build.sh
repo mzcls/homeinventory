@@ -1,0 +1,1 @@
+docker build  --build-arg HTTP_PROXY=http://10.0.1.2:10809 --build-arg HTTPS_PROXY=http://10.0.1.2:10809 --build-arg NO_PROXY=localhost,127.0.0.1,internal.service -t homeinventory:latest .
