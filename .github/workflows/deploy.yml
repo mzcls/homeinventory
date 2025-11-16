@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 # 触发条件：当推送到 main 分支或创建标签时触发
 on:
   push:
-    branches: [ main ]
+    branches: [ latest ]
     tags: [ 'v*' ]
   # 也可以添加 pull_request 触发，用于测试 PR 是否能成功构建
   pull_request:
@@ -33,7 +33,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ secrets.DOCKER_USERNAME }}/homeinventory-server:latest # 替换为你的 DockerHub 用户名和仓库名
+        images: ${{ secrets.DOCKER_USERNAME }}/homeinventory-server # 替换为你的 DockerHub 用户名和仓库名
         tags: |
           type=ref,event=branch
           type=ref,event=tag
